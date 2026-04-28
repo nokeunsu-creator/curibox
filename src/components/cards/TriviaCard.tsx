@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { getCategoryTheme, CATEGORY_EMOJI } from '../../theme/categoryColors';
 import type { TriviaItem } from '../../models/types';
@@ -11,6 +12,8 @@ interface Props {
   onToggleFavorite?: (id: number) => void;
 }
 
+const SHARE_URL = 'https://curibox.vercel.app';
+
 export default function TriviaCard({
   item,
   position,
@@ -21,6 +24,32 @@ export default function TriviaCard({
   const { resolvedTheme } = useTheme();
   const theme = getCategoryTheme(item.category, resolvedTheme === 'dark');
   const emoji = CATEGORY_EMOJI[item.category];
+  const [copied, setCopied] = useState(false);
+
+  const handleShare = async () => {
+    const shareText = `${item.title}\n\n${item.content}`;
+    const shareData = {
+      title: '호기심상자',
+      text: shareText,
+      url: SHARE_URL,
+    };
+    const nav = navigator as Navigator & {
+      share?: (data: ShareData) => Promise<void>;
+    };
+    try {
+      if (typeof nav.share === 'function') {
+        await nav.share(shareData);
+        return;
+      }
+      if (nav.clipboard) {
+        await nav.clipboard.writeText(`${shareText}\n\n${SHARE_URL}`);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 1500);
+      }
+    } catch {
+      // user canceled or unavailable; ignore
+    }
+  };
 
   return (
     <div
@@ -35,15 +64,24 @@ export default function TriviaCard({
           <span className="text-sm">{emoji}</span>
           <span>{item.category}</span>
         </span>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           {position !== undefined && total !== undefined && (
             <span
-              className="text-xs font-medium tabular-nums"
+              className="mr-1 text-xs font-medium tabular-nums"
               style={{ color: theme.subtext }}
             >
               {position} / {total}
             </span>
           )}
+          <ShareButton
+            chipColor={theme.chip}
+            subtextColor={theme.subtext}
+            copied={copied}
+            onPress={(e) => {
+              e.stopPropagation();
+              handleShare();
+            }}
+          />
           {onToggleFavorite && (
             <FavoriteButton
               isFavorite={isFavorite}
@@ -119,6 +157,67 @@ function FavoriteButton({
       >
         <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z" />
       </svg>
+    </motion.button>
+  );
+}
+
+interface ShareButtonProps {
+  chipColor: string;
+  subtextColor: string;
+  copied: boolean;
+  onPress: (e: React.PointerEvent) => void;
+}
+
+function ShareButton({
+  chipColor,
+  subtextColor,
+  copied,
+  onPress,
+}: ShareButtonProps) {
+  return (
+    <motion.button
+      type="button"
+      onPointerDown={(e) => e.stopPropagation()}
+      onPointerUp={onPress}
+      whileTap={{ scale: 0.85 }}
+      animate={
+        copied
+          ? { scale: [1, 1.25, 1], transition: { duration: 0.32 } }
+          : { scale: 1 }
+      }
+      aria-label={copied ? '복사됨' : '공유'}
+      className="flex h-9 w-9 items-center justify-center rounded-full bg-white/40 backdrop-blur-sm transition-colors hover:bg-white/60"
+      style={{ color: copied ? chipColor : subtextColor }}
+    >
+      {copied ? (
+        <svg
+          viewBox="0 0 24 24"
+          className="h-5 w-5"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2.4}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <polyline points="20 6 9 17 4 12" />
+        </svg>
+      ) : (
+        <svg
+          viewBox="0 0 24 24"
+          className="h-5 w-5"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2.2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <circle cx="18" cy="5" r="3" />
+          <circle cx="6" cy="12" r="3" />
+          <circle cx="18" cy="19" r="3" />
+          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+          <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+        </svg>
+      )}
     </motion.button>
   );
 }

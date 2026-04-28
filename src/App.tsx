@@ -3,6 +3,7 @@ import SwipeDeck from './components/deck/SwipeDeck';
 import SettingsSheet from './components/settings/SettingsSheet';
 import EmptyState from './components/common/EmptyState';
 import OnboardingTutorial from './components/onboarding/OnboardingTutorial';
+import SearchSheet from './components/search/SearchSheet';
 import { loadAllTrivia, shuffleDeterministic } from './data/triviaLoader';
 import { useLastIndex } from './hooks/useLastIndex';
 import { useFavorites } from './hooks/useFavorites';
@@ -10,6 +11,7 @@ import { useCategoryFilter } from './hooks/useCategoryFilter';
 import { useViewMode } from './hooks/useViewMode';
 import { useOnboardingSeen } from './hooks/useOnboardingSeen';
 import { useTheme } from './hooks/useTheme';
+import { ALL_CATEGORIES } from './models/types';
 import type { DeckItem } from './models/types';
 
 const SHUFFLE_SEED = 20260428;
@@ -21,6 +23,7 @@ export default function App() {
   const filter = useCategoryFilter();
   const [viewMode, setViewMode] = useViewMode();
   const [showSettings, setShowSettings] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
   const onboarding = useOnboardingSeen();
   const [forceShowOnboarding, setForceShowOnboarding] = useState(false);
   const showOnboarding = !onboarding.seen || forceShowOnboarding;
@@ -39,9 +42,15 @@ export default function App() {
 
   const filterKey = `${viewMode}:${[...filter.enabled].sort().join(',')}`;
   const prevKeyRef = useRef(filterKey);
+  const pendingJumpRef = useRef<number | null>(null);
   useEffect(() => {
     if (prevKeyRef.current !== filterKey) {
-      setIndex(0);
+      if (pendingJumpRef.current !== null) {
+        setIndex(pendingJumpRef.current);
+        pendingJumpRef.current = null;
+      } else {
+        setIndex(0);
+      }
       prevKeyRef.current = filterKey;
     }
   }, [filterKey, setIndex]);
@@ -51,6 +60,20 @@ export default function App() {
   const isFavoritesMode = viewMode === 'favorites';
   const toggleFavoritesView = () =>
     setViewMode(isFavoritesMode ? 'all' : 'favorites');
+
+  const handlePickSearchResult = (itemId: number) => {
+    setShowSearch(false);
+    const idx = SHUFFLED_TRIVIA.findIndex((item) => item.id === itemId);
+    if (idx < 0) return;
+    const targetKey = `all:${[...ALL_CATEGORIES].sort().join(',')}`;
+    if (filterKey === targetKey) {
+      setIndex(idx);
+      return;
+    }
+    pendingJumpRef.current = idx;
+    filter.enableAll();
+    setViewMode('all');
+  };
 
   return (
     <div className="flex h-full w-full flex-col bg-neutral-50 dark:bg-neutral-950">
@@ -85,6 +108,25 @@ export default function App() {
               {safeIndex + 1} / {deck.length}
             </span>
           )}
+          <button
+            type="button"
+            onClick={() => setShowSearch(true)}
+            className="rounded-full p-1.5 text-neutral-500 hover:bg-neutral-200 dark:text-neutral-400 dark:hover:bg-neutral-800"
+            aria-label="검색"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              className="h-5 w-5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+          </button>
           <button
             type="button"
             onClick={() => setShowSettings(true)}
@@ -161,6 +203,13 @@ export default function App() {
         theme={theme}
         resolvedTheme={resolvedTheme}
         onSetTheme={setTheme}
+      />
+
+      <SearchSheet
+        open={showSearch}
+        onClose={() => setShowSearch(false)}
+        items={SHUFFLED_TRIVIA}
+        onPickItem={handlePickSearchResult}
       />
 
       {showOnboarding && (

@@ -80,9 +80,11 @@ curibox/
 │   │   ├── deck/
 │   │   │   └── SwipeDeck.tsx      # framer-motion 세로 스와이프 + AnimatePresence
 │   │   ├── settings/
-│   │   │   └── SettingsSheet.tsx  # 바텀시트 (카테고리 칩 + 진행도/즐겨찾기 초기화 + 튜토리얼 다시 보기)
+│   │   │   └── SettingsSheet.tsx  # 바텀시트 (테마 토글 + 카테고리 칩 + 진행도/즐겨찾기 초기화 + 튜토리얼 다시 보기)
 │   │   ├── onboarding/
 │   │   │   └── OnboardingTutorial.tsx # 4슬라이드 전체화면 (좌우 스와이프 + 인디케이터 + 건너뛰기/시작하기)
+│   │   ├── search/
+│   │   │   └── SearchSheet.tsx    # 전체화면 검색 (title/content includes, score=2 title>content, 50개 cap)
 │   │   └── common/
 │   │       └── EmptyState.tsx     # 빈 덱 상태 (이모지 + 제목 + 설명 + 액션 버튼)
 │   ├── hooks/
@@ -127,6 +129,8 @@ curibox/
 - ✅ **서비스 워커** (sw.js, cache-first 정적 자원 / network-first HTML, 오프라인 부분 지원)
 - ✅ **콘텐츠 500개 달성** (7카테고리 60~72개씩, 글로벌 ID 1~500)
 - ✅ **다크 모드** (light/dark/system 3모드, useTheme 훅, system은 prefers-color-scheme 실시간 추적, theme-color 메타 동기화, 카테고리 그라디언트 다크 변형, 모든 컴포넌트 dark: 클래스 적용)
+- ✅ **공유 기능** (TriviaCard 공유 버튼 — Web Share API 우선, 미지원 시 navigator.clipboard 폴백 + ✓ 피드백 1.5s)
+- ✅ **검색** (헤더 🔍 → SearchSheet 전체화면 모달, title/content 키워드 검색, score 정렬, 결과 탭 시 필터 풀고 점프 — pendingJumpRef로 효과 충돌 회피)
 - ⚠️ **광고 일시 비활성화**: App.tsx에서 `buildDeck` 호출 제거, trivia 배열을 `DeckItem[]`로 직접 사용. AdCard/buildDeck/isAdItem 코드는 보존됨 (재활성 시 buildDeck 한 줄 부활하면 됨)
 
 ## 미완료
@@ -157,6 +161,7 @@ npx vercel --prod --yes   # ChonMap과 동일
 - **셔플 시드**: App.tsx의 `SHUFFLE_SEED` 상수가 모든 사용자에게 동일한 셔플 순서를 제공. 시드 변경 시 모든 사용자의 lastIndex가 다른 카드를 가리키게 됨 (사실상 진행도 리셋 효과). 콘텐츠 추가 후 새 시드 검토
 - **서비스 워커 캐시 버스팅**: `sw.js`의 `CACHE_NAME = 'curibox-v1'` 상수. 정적 자원이 캐시되어 사용자에게 옛 버전이 보이는 문제가 발생하면 v2, v3로 올려서 강제 갱신. 보통 hashed asset URL 덕에 자동 처리되지만 manifest/sw 자체가 바뀐 경우엔 수동 bump 필요
 - **PWA 아이콘**: 현재 SVG만 제공. iOS Safari `apple-touch-icon`은 SVG 폴백이 최신 iOS만 지원. 호환성 필요 시 PNG(192/512) 추가 생성 검토 (Sharp 또는 외부 변환)
+- **검색 점프 + 필터 충돌**: 검색 결과 탭 → 필터를 'all'로 푸는데, filterKey 변경 effect가 setIndex(0)으로 덮어씀. `pendingJumpRef` 패턴으로 effect 안에서 점프 의도를 우선 처리. 검색 외에 인덱스 점프 기능 추가 시 같은 패턴 사용 권장
 - **localStorage 키**: 모든 키는 `curibox:` 접두사로 통일할 것 (`curibox:lastIndex`, `curibox:favorites`, `curibox:settings` 등)
 - **framer-motion v11**: React 19와 호환 확인됨. AnimatePresence + drag 패턴 사용 시 `mode="popLayout"` 권장 (구현 시 검증)
 
@@ -176,5 +181,7 @@ npx vercel --prod --yes   # ChonMap과 동일
 | 9 | PWA (manifest + 아이콘 + 서비스 워커) | ✅ |
 | 10 | 콘텐츠 500개 달성 (+80) | ✅ |
 | 11 | 다크 모드 (light/dark/system) | ✅ |
-| 12 | AdSense 실 광고 SDK 연동 | ⏸️ |
-| 13 | TWA Android 패키징 | ⏸️ |
+| 12 | 공유 기능 (Web Share API + 클립보드 폴백) | ✅ |
+| 13 | 검색 (전체화면 시트, title/content 매칭) | ✅ |
+| 14 | AdSense 실 광고 SDK 연동 | ⏸️ |
+| 15 | TWA Android 패키징 | ⏸️ |
