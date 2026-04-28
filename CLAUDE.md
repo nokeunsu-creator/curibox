@@ -73,7 +73,8 @@ curibox/
 │   │   └── deck/
 │   │       └── SwipeDeck.tsx      # framer-motion 세로 스와이프 + AnimatePresence
 │   ├── hooks/
-│   │   └── useLastIndex.ts        # localStorage 디바운스(500ms) 저장 + beforeunload/visibilitychange 즉시 flush
+│   │   ├── useLastIndex.ts        # localStorage 디바운스(500ms) 저장 + beforeunload/visibilitychange 즉시 flush
+│   │   └── useFavorites.ts        # 즐겨찾기 ID Set 관리 (toggle/isFavorite/clear/count) + 디바운스 저장
 │   ├── App.tsx                    # 헤더 + SwipeDeck + 인덱스 카운터
 │   ├── main.tsx                   # ErrorBoundary + StrictMode
 │   ├── index.css                  # Tailwind import
@@ -98,9 +99,10 @@ curibox/
 - ✅ **useLastIndex** 훅 (localStorage 디바운스 500ms + beforeunload/visibilitychange flush)
 - ✅ App.tsx 통합 (스와이프 네비게이션, 인덱스 자동 복원)
 - ✅ Vercel 배포 (https://curibox.vercel.app)
+- ✅ **즐겨찾기 시스템** (TriviaCard 우상단 하트 버튼 + useFavorites 훅 + 헤더 카운트 표시)
 
 ## 미완료
-- ❌ 즐겨찾기 / 카테고리 필터 / 설정 페이지
+- ❌ 카테고리 필터 / 설정 페이지 / 즐겨찾기 보기 모드
 - ❌ 온보딩 튜토리얼
 - ❌ AdSense 실 광고 SDK 연동 (1차는 Mock만)
 - ❌ TWA Android 패키징
@@ -138,7 +140,8 @@ npx vercel --prod --yes   # ChonMap과 동일
 | 4 | TriviaCard / AdCard 컴포넌트 + App 통합 (버튼 네비) | ✅ |
 | 5 | SwipeDeck (framer-motion) + useLastIndex 훅 | ✅ |
 | 6 | Vercel 배포 (https://curibox.vercel.app) | ✅ |
-| 7 | 즐겨찾기 / 카테고리 필터 / 설정 페이지 | ⏸️ |
+| 7a | 즐겨찾기 (하트 버튼 + useFavorites) | ✅ |
+| 7b | 카테고리 필터 + 즐겨찾기 보기 모드 + 설정 페이지 | ⏸️ |
 | 8 | 온보딩 튜토리얼 | ⏸️ |
 | 9 | AdSense 실 광고 SDK 연동 | ⏸️ |
 | 10 | TWA Android 패키징 | ⏸️ |

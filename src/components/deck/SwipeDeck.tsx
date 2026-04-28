@@ -10,6 +10,8 @@ interface Props {
   deck: DeckItem[];
   index: number;
   onChangeIndex: (next: number) => void;
+  isFavorite?: (id: number) => boolean;
+  onToggleFavorite?: (id: number) => void;
 }
 
 const SWIPE_OFFSET = 100;
@@ -27,7 +29,13 @@ const variants = {
   }),
 };
 
-export default function SwipeDeck({ deck, index, onChangeIndex }: Props) {
+export default function SwipeDeck({
+  deck,
+  index,
+  onChangeIndex,
+  isFavorite,
+  onToggleFavorite,
+}: Props) {
   const [direction, setDirection] = useState(1);
   const item = deck[index];
 
@@ -81,6 +89,8 @@ export default function SwipeDeck({ deck, index, onChangeIndex }: Props) {
               item={item}
               position={index + 1}
               total={deck.length}
+              isFavorite={isFavorite?.(item.id)}
+              onToggleFavorite={onToggleFavorite}
             />
           )}
         </motion.div>
