@@ -1,9 +1,15 @@
 import SwipeDeck from './components/deck/SwipeDeck';
-import { loadAllTrivia, buildDeck } from './data/triviaLoader';
+import {
+  loadAllTrivia,
+  buildDeck,
+  shuffleDeterministic,
+} from './data/triviaLoader';
 import { useLastIndex } from './hooks/useLastIndex';
 import { useFavorites } from './hooks/useFavorites';
 
-const DECK = buildDeck(loadAllTrivia(), 10);
+const SHUFFLE_SEED = 20260428;
+const SHUFFLED_TRIVIA = shuffleDeterministic(loadAllTrivia(), SHUFFLE_SEED);
+const DECK = buildDeck(SHUFFLED_TRIVIA, 10);
 const MAX_INDEX = DECK.length - 1;
 
 export default function App() {

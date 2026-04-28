@@ -100,6 +100,7 @@ curibox/
 - ✅ App.tsx 통합 (스와이프 네비게이션, 인덱스 자동 복원)
 - ✅ Vercel 배포 (https://curibox.vercel.app)
 - ✅ **즐겨찾기 시스템** (TriviaCard 우상단 하트 버튼 + useFavorites 훅 + 헤더 카운트 표시)
+- ✅ **결정적 셔플 적용** (App.tsx에서 `shuffleDeterministic(loadAllTrivia(), 20260428)` 후 buildDeck — 카테고리 블록 → 골고루 섞임)
 
 ## 미완료
 - ❌ 카테고리 필터 / 설정 페이지 / 즐겨찾기 보기 모드
@@ -127,7 +128,8 @@ npx vercel --prod --yes   # ChonMap과 동일
 - **글로벌 ID 재할당**: 로컬 JSON ID는 무시. `loadAllTrivia()`에서 idx+1로 새로 매김. 즐겨찾기 등 ID로 참조하는 기능 추가 시 이 점 유의
 - **Mulberry32 셔플**: `shuffleDeterministic`은 입력을 변경하지 않음. 결과만 섞인 새 배열로 반환. 시드는 number만 허용 (string 시드는 hash 함수 거쳐야 함)
 - **카테고리 union 타입**: TriviaItem.category는 한국어 리터럴 union. JSON에 새 카테고리 추가하면 types.ts의 Category, ALL_CATEGORIES, CATEGORY_THEME, CATEGORY_EMOJI **4곳 모두** 수정해야 함
-- **번들 크기**: trivia JSON이 정적 import로 번들에 포함됨 (현재 313KB / gzip 104KB). 데이터가 더 늘어나면 dynamic import + Suspense로 전환 검토
+- **번들 크기**: trivia JSON이 정적 import로 번들에 포함됨 (현재 430KB / gzip 142KB, framer-motion 포함). 데이터가 더 늘어나면 dynamic import + Suspense로 전환 검토
+- **셔플 시드**: App.tsx의 `SHUFFLE_SEED` 상수가 모든 사용자에게 동일한 셔플 순서를 제공. 시드 변경 시 모든 사용자의 lastIndex가 다른 카드를 가리키게 됨 (사실상 진행도 리셋 효과). 콘텐츠 추가 후 새 시드 검토
 - **localStorage 키**: 모든 키는 `curibox:` 접두사로 통일할 것 (`curibox:lastIndex`, `curibox:favorites`, `curibox:settings` 등)
 - **framer-motion v11**: React 19와 호환 확인됨. AnimatePresence + drag 패턴 사용 시 `mode="popLayout"` 권장 (구현 시 검증)
 
