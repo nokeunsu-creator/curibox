@@ -52,6 +52,12 @@
 ## 폴더 구조
 ```
 curibox/
+├── public/                    # Vercel 정적 자원 (manifest, sw, icons는 빌드 시 dist/로 복사)
+│   ├── manifest.json
+│   ├── sw.js                  # 서비스 워커 (cache-first 정적 / network-first navigation)
+│   └── icons/
+│       ├── icon.svg           # 일반 아이콘 (보라 그라디언트 + 박스 + 물음표)
+│       └── icon-maskable.svg  # PWA maskable (안전 영역 작게)
 ├── assets/trivia/             # 카테고리별 JSON (src 외부, 로더에서 ../../로 import)
 │   ├── space.json (60개)
 │   ├── body.json (60개)
@@ -115,12 +121,14 @@ curibox/
 - ✅ **설정 시트** (바텀시트, 카테고리 칩, 진행도/즐겨찾기 초기화)
 - ✅ **빈 상태 처리** (즐겨찾기 모드에 0개 / 카테고리 미선택)
 - ✅ **온보딩 튜토리얼** (4슬라이드 — 환영/스와이프/즐겨찾기/카테고리 — 첫 방문 시 자동 표시, 설정에서 다시 보기 가능)
+- ✅ **PWA 설치 가능** (manifest.json + 아이콘 SVG + apple-touch-icon — 폰 홈화면 추가 지원)
+- ✅ **서비스 워커** (sw.js, cache-first 정적 자원 / network-first HTML, 오프라인 부분 지원)
 - ⚠️ **광고 일시 비활성화**: App.tsx에서 `buildDeck` 호출 제거, trivia 배열을 `DeckItem[]`로 직접 사용. AdCard/buildDeck/isAdItem 코드는 보존됨 (재활성 시 buildDeck 한 줄 부활하면 됨)
 
 ## 미완료
-- ❌ 온보딩 튜토리얼
-- ❌ AdSense 실 광고 SDK 연동 (1차는 Mock만)
-- ❌ TWA Android 패키징
+- ❌ TWA Android 패키징 (assetlinks.json + bubblewrap)
+- ❌ AdSense 실 광고 SDK 연동 (사용자 보류 상태)
+- ❌ 콘텐츠 80개 추가 (목표 500개, 현재 420개)
 
 ## 빌드 & 실행
 ```bash
@@ -144,6 +152,8 @@ npx vercel --prod --yes   # ChonMap과 동일
 - **카테고리 union 타입**: TriviaItem.category는 한국어 리터럴 union. JSON에 새 카테고리 추가하면 types.ts의 Category, ALL_CATEGORIES, CATEGORY_THEME, CATEGORY_EMOJI **4곳 모두** 수정해야 함
 - **번들 크기**: trivia JSON이 정적 import로 번들에 포함됨 (현재 430KB / gzip 142KB, framer-motion 포함). 데이터가 더 늘어나면 dynamic import + Suspense로 전환 검토
 - **셔플 시드**: App.tsx의 `SHUFFLE_SEED` 상수가 모든 사용자에게 동일한 셔플 순서를 제공. 시드 변경 시 모든 사용자의 lastIndex가 다른 카드를 가리키게 됨 (사실상 진행도 리셋 효과). 콘텐츠 추가 후 새 시드 검토
+- **서비스 워커 캐시 버스팅**: `sw.js`의 `CACHE_NAME = 'curibox-v1'` 상수. 정적 자원이 캐시되어 사용자에게 옛 버전이 보이는 문제가 발생하면 v2, v3로 올려서 강제 갱신. 보통 hashed asset URL 덕에 자동 처리되지만 manifest/sw 자체가 바뀐 경우엔 수동 bump 필요
+- **PWA 아이콘**: 현재 SVG만 제공. iOS Safari `apple-touch-icon`은 SVG 폴백이 최신 iOS만 지원. 호환성 필요 시 PNG(192/512) 추가 생성 검토 (Sharp 또는 외부 변환)
 - **localStorage 키**: 모든 키는 `curibox:` 접두사로 통일할 것 (`curibox:lastIndex`, `curibox:favorites`, `curibox:settings` 등)
 - **framer-motion v11**: React 19와 호환 확인됨. AnimatePresence + drag 패턴 사용 시 `mode="popLayout"` 권장 (구현 시 검증)
 
@@ -160,5 +170,6 @@ npx vercel --prod --yes   # ChonMap과 동일
 | 7b | 카테고리 필터 + 즐겨찾기 보기 모드 + 설정 시트 | ✅ |
 | 7c | 광고 일시 비활성화 (재활성 시 buildDeck 부활) | ✅ |
 | 8 | 온보딩 튜토리얼 (4슬라이드 + 다시 보기) | ✅ |
-| 9 | AdSense 실 광고 SDK 연동 | ⏸️ |
-| 10 | TWA Android 패키징 | ⏸️ |
+| 9 | PWA (manifest + 아이콘 + 서비스 워커) | ✅ |
+| 10 | AdSense 실 광고 SDK 연동 | ⏸️ |
+| 11 | TWA Android 패키징 | ⏸️ |
