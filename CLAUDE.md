@@ -68,13 +68,19 @@ curibox/
 │   │   └── triviaLoader.test.ts (Vitest 14건)
 │   ├── components/
 │   │   ├── cards/
-│   │   │   ├── TriviaCard.tsx     # 카테고리 그라디언트 + 칩 + 큰 이모지(워터마크) + title + content
-│   │   │   └── AdCard.tsx         # 다크 톤 광고 placeholder
-│   │   └── deck/
-│   │       └── SwipeDeck.tsx      # framer-motion 세로 스와이프 + AnimatePresence
+│   │   │   ├── TriviaCard.tsx     # 카테고리 그라디언트 + 칩 + 큰 이모지(워터마크) + title + content + 하트 버튼
+│   │   │   └── AdCard.tsx         # 다크 톤 광고 placeholder (현재 미사용 — 광고 추후 재활성)
+│   │   ├── deck/
+│   │   │   └── SwipeDeck.tsx      # framer-motion 세로 스와이프 + AnimatePresence
+│   │   ├── settings/
+│   │   │   └── SettingsSheet.tsx  # 바텀시트 (카테고리 칩 + 진행도/즐겨찾기 초기화)
+│   │   └── common/
+│   │       └── EmptyState.tsx     # 빈 덱 상태 (이모지 + 제목 + 설명 + 액션 버튼)
 │   ├── hooks/
 │   │   ├── useLastIndex.ts        # localStorage 디바운스(500ms) 저장 + beforeunload/visibilitychange 즉시 flush
-│   │   └── useFavorites.ts        # 즐겨찾기 ID Set 관리 (toggle/isFavorite/clear/count) + 디바운스 저장
+│   │   ├── useFavorites.ts        # 즐겨찾기 ID Set 관리 (toggle/isFavorite/clear/count) + 디바운스 저장
+│   │   ├── useCategoryFilter.ts   # 활성 카테고리 Set + toggle/enableAll/disableAll + 디바운스 저장
+│   │   └── useViewMode.ts         # 'all' | 'favorites' 보기 모드 + 즉시 저장
 │   ├── App.tsx                    # 헤더 + SwipeDeck + 인덱스 카운터
 │   ├── main.tsx                   # ErrorBoundary + StrictMode
 │   ├── index.css                  # Tailwind import
@@ -100,10 +106,14 @@ curibox/
 - ✅ App.tsx 통합 (스와이프 네비게이션, 인덱스 자동 복원)
 - ✅ Vercel 배포 (https://curibox.vercel.app)
 - ✅ **즐겨찾기 시스템** (TriviaCard 우상단 하트 버튼 + useFavorites 훅 + 헤더 카운트 표시)
-- ✅ **결정적 셔플 적용** (App.tsx에서 `shuffleDeterministic(loadAllTrivia(), 20260428)` 후 buildDeck — 카테고리 블록 → 골고루 섞임)
+- ✅ **결정적 셔플 적용** (App.tsx에서 `shuffleDeterministic(loadAllTrivia(), 20260428)` 적용 — 카테고리 블록 → 골고루 섞임)
+- ✅ **카테고리 필터** (useCategoryFilter + 설정 시트 7칩 토글, localStorage 영속화)
+- ✅ **즐겨찾기 보기 모드** (useViewMode 'all' | 'favorites' — 헤더 ❤️ 배지 탭으로 전환)
+- ✅ **설정 시트** (바텀시트, 카테고리 칩, 진행도/즐겨찾기 초기화)
+- ✅ **빈 상태 처리** (즐겨찾기 모드에 0개 / 카테고리 미선택)
+- ⚠️ **광고 일시 비활성화**: App.tsx에서 `buildDeck` 호출 제거, trivia 배열을 `DeckItem[]`로 직접 사용. AdCard/buildDeck/isAdItem 코드는 보존됨 (재활성 시 buildDeck 한 줄 부활하면 됨)
 
 ## 미완료
-- ❌ 카테고리 필터 / 설정 페이지 / 즐겨찾기 보기 모드
 - ❌ 온보딩 튜토리얼
 - ❌ AdSense 실 광고 SDK 연동 (1차는 Mock만)
 - ❌ TWA Android 패키징
@@ -143,7 +153,8 @@ npx vercel --prod --yes   # ChonMap과 동일
 | 5 | SwipeDeck (framer-motion) + useLastIndex 훅 | ✅ |
 | 6 | Vercel 배포 (https://curibox.vercel.app) | ✅ |
 | 7a | 즐겨찾기 (하트 버튼 + useFavorites) | ✅ |
-| 7b | 카테고리 필터 + 즐겨찾기 보기 모드 + 설정 페이지 | ⏸️ |
+| 7b | 카테고리 필터 + 즐겨찾기 보기 모드 + 설정 시트 | ✅ |
+| 7c | 광고 일시 비활성화 (재활성 시 buildDeck 부활) | ✅ |
 | 8 | 온보딩 튜토리얼 | ⏸️ |
 | 9 | AdSense 실 광고 SDK 연동 | ⏸️ |
 | 10 | TWA Android 패키징 | ⏸️ |
