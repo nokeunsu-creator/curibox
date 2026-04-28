@@ -8,15 +8,15 @@ import { ALL_CATEGORIES, isAdItem } from '../models/types';
 import type { TriviaItem } from '../models/types';
 
 describe('loadAllTrivia', () => {
-  it('returns 420 items (7 categories × 60)', () => {
+  it('returns 500 items (7 categories total)', () => {
     const all = loadAllTrivia();
-    expect(all.length).toBe(420);
+    expect(all.length).toBe(500);
   });
 
   it('assigns global sequential ids 1..N', () => {
     const all = loadAllTrivia();
     expect(all[0].id).toBe(1);
-    expect(all[all.length - 1].id).toBe(420);
+    expect(all[all.length - 1].id).toBe(500);
     all.forEach((item, idx) => {
       expect(item.id).toBe(idx + 1);
     });
@@ -29,11 +29,11 @@ describe('loadAllTrivia', () => {
     ALL_CATEGORIES.forEach((c) => expect(categories.has(c)).toBe(true));
   });
 
-  it('has exactly 60 items per category', () => {
+  it('has at least 60 items per category', () => {
     const all = loadAllTrivia();
     const counts = new Map<string, number>();
     all.forEach((i) => counts.set(i.category, (counts.get(i.category) ?? 0) + 1));
-    counts.forEach((count) => expect(count).toBe(60));
+    counts.forEach((count) => expect(count).toBeGreaterThanOrEqual(60));
   });
 
   it('every item has non-empty title and content', () => {

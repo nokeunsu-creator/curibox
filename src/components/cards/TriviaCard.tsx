@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
-import { CATEGORY_THEME, CATEGORY_EMOJI } from '../../theme/categoryColors';
+import { getCategoryTheme, CATEGORY_EMOJI } from '../../theme/categoryColors';
 import type { TriviaItem } from '../../models/types';
+import { useTheme } from '../../hooks/useTheme';
 
 interface Props {
   item: TriviaItem;
@@ -17,7 +18,8 @@ export default function TriviaCard({
   isFavorite = false,
   onToggleFavorite,
 }: Props) {
-  const theme = CATEGORY_THEME[item.category];
+  const { resolvedTheme } = useTheme();
+  const theme = getCategoryTheme(item.category, resolvedTheme === 'dark');
   const emoji = CATEGORY_EMOJI[item.category];
 
   return (

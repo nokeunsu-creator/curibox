@@ -9,6 +9,7 @@ import { useFavorites } from './hooks/useFavorites';
 import { useCategoryFilter } from './hooks/useCategoryFilter';
 import { useViewMode } from './hooks/useViewMode';
 import { useOnboardingSeen } from './hooks/useOnboardingSeen';
+import { useTheme } from './hooks/useTheme';
 import type { DeckItem } from './models/types';
 
 const SHUFFLE_SEED = 20260428;
@@ -23,6 +24,7 @@ export default function App() {
   const onboarding = useOnboardingSeen();
   const [forceShowOnboarding, setForceShowOnboarding] = useState(false);
   const showOnboarding = !onboarding.seen || forceShowOnboarding;
+  const { theme, resolvedTheme, setTheme } = useTheme();
 
   const deck = useMemo<DeckItem[]>(() => {
     if (viewMode === 'favorites') {
@@ -51,11 +53,11 @@ export default function App() {
     setViewMode(isFavoritesMode ? 'all' : 'favorites');
 
   return (
-    <div className="flex h-full w-full flex-col bg-neutral-50">
+    <div className="flex h-full w-full flex-col bg-neutral-50 dark:bg-neutral-950">
       <header className="flex items-center justify-between px-5 pt-5 pb-3">
         <div className="flex items-center gap-2">
           <span className="text-xl">📦</span>
-          <h1 className="text-base font-bold text-neutral-800">호기심상자</h1>
+          <h1 className="text-base font-bold text-neutral-800 dark:text-neutral-100">호기심상자</h1>
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -65,7 +67,7 @@ export default function App() {
               'inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium transition-colors ' +
               (isFavoritesMode
                 ? 'bg-rose-500 text-white'
-                : 'bg-rose-50 text-rose-500 hover:bg-rose-100')
+                : 'bg-rose-50 text-rose-500 hover:bg-rose-100 dark:bg-rose-950 dark:text-rose-300 dark:hover:bg-rose-900')
             }
             aria-label={isFavoritesMode ? '전체 보기' : '즐겨찾기 보기'}
           >
@@ -79,14 +81,14 @@ export default function App() {
             {count}
           </button>
           {deck.length > 0 && (
-            <span className="text-xs tabular-nums text-neutral-400">
+            <span className="text-xs tabular-nums text-neutral-400 dark:text-neutral-500">
               {safeIndex + 1} / {deck.length}
             </span>
           )}
           <button
             type="button"
             onClick={() => setShowSettings(true)}
-            className="rounded-full p-1.5 text-neutral-500 hover:bg-neutral-200"
+            className="rounded-full p-1.5 text-neutral-500 hover:bg-neutral-200 dark:text-neutral-400 dark:hover:bg-neutral-800"
             aria-label="설정"
           >
             <svg
@@ -138,7 +140,7 @@ export default function App() {
       </main>
 
       <footer className="flex justify-center pb-4">
-        <p className="text-xs text-neutral-400">
+        <p className="text-xs text-neutral-400 dark:text-neutral-600">
           위/아래로 스와이프 — 카드 넘기기
         </p>
       </footer>
@@ -156,6 +158,9 @@ export default function App() {
           setShowSettings(false);
           setForceShowOnboarding(true);
         }}
+        theme={theme}
+        resolvedTheme={resolvedTheme}
+        onSetTheme={setTheme}
       />
 
       {showOnboarding && (

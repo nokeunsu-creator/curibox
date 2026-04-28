@@ -68,6 +68,72 @@ export const CATEGORY_THEME: Record<Category, CategoryTheme> = {
   },
 };
 
+export const CATEGORY_THEME_DARK: Record<Category, CategoryTheme> = {
+  우주: {
+    bg: '#2A2540',
+    bgGradient: 'linear-gradient(160deg, #3A2D6E 0%, #1F1A38 100%)',
+    chip: '#9F7BE8',
+    chipText: '#1A1530',
+    text: '#E8DEFF',
+    subtext: '#A89BD0',
+  },
+  인체: {
+    bg: '#3E2530',
+    bgGradient: 'linear-gradient(160deg, #5A2D40 0%, #2D1620 100%)',
+    chip: '#FF8FAA',
+    chipText: '#2A0F1A',
+    text: '#FFD0DD',
+    subtext: '#C0909E',
+  },
+  역사: {
+    bg: '#3D3220',
+    bgGradient: 'linear-gradient(160deg, #5C4520 0%, #2D2010 100%)',
+    chip: '#F0BB60',
+    chipText: '#2D1F08',
+    text: '#FFE5B0',
+    subtext: '#C0A878',
+  },
+  동물: {
+    bg: '#1F3528',
+    bgGradient: 'linear-gradient(160deg, #1F5538 0%, #0F2818 100%)',
+    chip: '#7AD89E',
+    chipText: '#0A2818',
+    text: '#C8F0D8',
+    subtext: '#88B098',
+  },
+  자연: {
+    bg: '#1F2F3D',
+    bgGradient: 'linear-gradient(160deg, #1F4D6E 0%, #0F2535 100%)',
+    chip: '#7DC0E0',
+    chipText: '#0A2535',
+    text: '#C8E5F2',
+    subtext: '#88A8B8',
+  },
+  과학: {
+    bg: '#25254A',
+    bgGradient: 'linear-gradient(160deg, #3D3D7A 0%, #1A1A38 100%)',
+    chip: '#9090E8',
+    chipText: '#1A1A38',
+    text: '#D8D8FF',
+    subtext: '#9898C8',
+  },
+  문화: {
+    bg: '#3D2D1F',
+    bgGradient: 'linear-gradient(160deg, #5C3D1F 0%, #2D1F0F 100%)',
+    chip: '#F0A560',
+    chipText: '#2D1A08',
+    text: '#FFD8B0',
+    subtext: '#C09878',
+  },
+};
+
+export function getCategoryTheme(
+  cat: Category,
+  isDark: boolean
+): CategoryTheme {
+  return isDark ? CATEGORY_THEME_DARK[cat] : CATEGORY_THEME[cat];
+}
+
 export const CATEGORY_EMOJI: Record<Category, string> = {
   우주: '🌌',
   인체: '🧬',

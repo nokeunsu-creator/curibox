@@ -34,8 +34,9 @@
 - `isAdItem(item)`: type guard 함수
 
 ### 카테고리 테마 (`src/theme/categoryColors.ts`)
-- 7개 카테고리 × { bg, bgGradient, chip, chipText, text, subtext } 매핑
-- 파스텔 톤 그라디언트 + 진한 톤 칩 + 다크 텍스트 (라이트 테마 전용; 다크모드 미구현)
+- `CATEGORY_THEME` (라이트): 7개 카테고리 × { bg, bgGradient, chip, chipText, text, subtext } 매핑, 파스텔 그라디언트 + 진한 칩
+- `CATEGORY_THEME_DARK`: 동일 카테고리의 어두운 톤 변형 (배경은 깊은 파스텔, 칩은 부드러운 밝은 파스텔, 텍스트는 라이트)
+- `getCategoryTheme(cat, isDark)`: 다크 모드 분기 헬퍼
 - `CATEGORY_EMOJI`: 카테고리별 이모지(🌌🧬🏛️🐾🌊🔬🍜)
 
 ### 데이터 로더 (`src/data/triviaLoader.ts`)
@@ -44,8 +45,8 @@
 - `shuffleDeterministic(arr, seed)`: Mulberry32 기반 결정적 셔플. 같은 시드 → 같은 순서. **입력 비파괴**(스프레드로 복사)
 
 ### 데이터 (`assets/trivia/*.json`)
-- 7개 파일 × 60개 = 총 **420개**
-- 각 파일 ID는 카테고리 내부 1~60 (로컬). 머지 시 글로벌로 재할당
+- 7개 파일 × 60~72개 = 총 **500개** (우주 72, 인체 71, 역사 71, 동물 72, 자연 71, 과학 72, 문화 71)
+- 각 파일 ID는 카테고리 내부 1~72 (로컬). 머지 시 글로벌로 재할당 (1~500)
 - 작성 톤: title은 후킹하는 한 줄(숫자/대비/반전), content는 정확히 3문장
   - 핵심 사실 → 부연 → 임팩트 순
 
@@ -89,7 +90,8 @@ curibox/
 │   │   ├── useFavorites.ts        # 즐겨찾기 ID Set 관리 (toggle/isFavorite/clear/count) + 디바운스 저장
 │   │   ├── useCategoryFilter.ts   # 활성 카테고리 Set + toggle/enableAll/disableAll + 디바운스 저장
 │   │   ├── useViewMode.ts         # 'all' | 'favorites' 보기 모드 + 즉시 저장
-│   │   └── useOnboardingSeen.ts   # 첫 방문 플래그 (seen/markSeen/reset)
+│   │   ├── useOnboardingSeen.ts   # 첫 방문 플래그 (seen/markSeen/reset)
+│   │   └── useTheme.ts            # 'light' | 'dark' | 'system' + system prefers-color-scheme 추적 + theme-color 메타 동기화
 │   ├── App.tsx                    # 헤더 + SwipeDeck + 인덱스 카운터
 │   ├── main.tsx                   # ErrorBoundary + StrictMode
 │   ├── index.css                  # Tailwind import
@@ -123,12 +125,13 @@ curibox/
 - ✅ **온보딩 튜토리얼** (4슬라이드 — 환영/스와이프/즐겨찾기/카테고리 — 첫 방문 시 자동 표시, 설정에서 다시 보기 가능)
 - ✅ **PWA 설치 가능** (manifest.json + 아이콘 SVG + apple-touch-icon — 폰 홈화면 추가 지원)
 - ✅ **서비스 워커** (sw.js, cache-first 정적 자원 / network-first HTML, 오프라인 부분 지원)
+- ✅ **콘텐츠 500개 달성** (7카테고리 60~72개씩, 글로벌 ID 1~500)
+- ✅ **다크 모드** (light/dark/system 3모드, useTheme 훅, system은 prefers-color-scheme 실시간 추적, theme-color 메타 동기화, 카테고리 그라디언트 다크 변형, 모든 컴포넌트 dark: 클래스 적용)
 - ⚠️ **광고 일시 비활성화**: App.tsx에서 `buildDeck` 호출 제거, trivia 배열을 `DeckItem[]`로 직접 사용. AdCard/buildDeck/isAdItem 코드는 보존됨 (재활성 시 buildDeck 한 줄 부활하면 됨)
 
 ## 미완료
 - ❌ TWA Android 패키징 (assetlinks.json + bubblewrap)
 - ❌ AdSense 실 광고 SDK 연동 (사용자 보류 상태)
-- ❌ 콘텐츠 80개 추가 (목표 500개, 현재 420개)
 
 ## 빌드 & 실행
 ```bash
@@ -171,5 +174,7 @@ npx vercel --prod --yes   # ChonMap과 동일
 | 7c | 광고 일시 비활성화 (재활성 시 buildDeck 부활) | ✅ |
 | 8 | 온보딩 튜토리얼 (4슬라이드 + 다시 보기) | ✅ |
 | 9 | PWA (manifest + 아이콘 + 서비스 워커) | ✅ |
-| 10 | AdSense 실 광고 SDK 연동 | ⏸️ |
-| 11 | TWA Android 패키징 | ⏸️ |
+| 10 | 콘텐츠 500개 달성 (+80) | ✅ |
+| 11 | 다크 모드 (light/dark/system) | ✅ |
+| 12 | AdSense 실 광고 SDK 연동 | ⏸️ |
+| 13 | TWA Android 패키징 | ⏸️ |
