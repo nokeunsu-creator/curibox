@@ -12,7 +12,7 @@
 7개 카테고리(우주·인체·역사·동물·자연·과학·문화)의 흥미로운 잡학 사실을 카드 형태로 무한 스와이프하는 웹앱. ChonMap과 동일 스택의 정적 웹앱이며, 추후 TWA로 Android Play Store 래핑 예정.
 
 - **GitHub**: https://github.com/nokeunsu-creator/curibox (Public)
-- **라이브 URL**: 미배포 (Vercel 예정)
+- **라이브 URL**: https://curibox.vercel.app
 - **배포**: Vercel (정적 호스팅) → TWA로 Android Play Store 래핑 예정
 
 ## 기술 스택
@@ -67,10 +67,14 @@ curibox/
 │   │   ├── triviaLoader.ts
 │   │   └── triviaLoader.test.ts (Vitest 14건)
 │   ├── components/
-│   │   └── cards/
-│   │       ├── TriviaCard.tsx     # 카테고리 그라디언트 + 칩 + 큰 이모지(워터마크) + title + content
-│   │       └── AdCard.tsx         # 다크 톤 광고 placeholder
-│   ├── App.tsx                    # 헤더 + SwipeDeck(임시: 이전/다음 버튼) + 카드
+│   │   ├── cards/
+│   │   │   ├── TriviaCard.tsx     # 카테고리 그라디언트 + 칩 + 큰 이모지(워터마크) + title + content
+│   │   │   └── AdCard.tsx         # 다크 톤 광고 placeholder
+│   │   └── deck/
+│   │       └── SwipeDeck.tsx      # framer-motion 세로 스와이프 + AnimatePresence
+│   ├── hooks/
+│   │   └── useLastIndex.ts        # localStorage 디바운스(500ms) 저장 + beforeunload/visibilitychange 즉시 flush
+│   ├── App.tsx                    # 헤더 + SwipeDeck + 인덱스 카운터
 │   ├── main.tsx                   # ErrorBoundary + StrictMode
 │   ├── index.css                  # Tailwind import
 │   └── vite-env.d.ts
@@ -90,15 +94,15 @@ curibox/
 - ✅ triviaLoader: 머지 + 글로벌 ID + 광고 인터리브 + 결정적 셔플 (Vitest 14건 통과)
 - ✅ TriviaCard 정적 렌더 (카테고리 그라디언트 + 칩 + 이모지 워터마크 + title + content + 인덱스)
 - ✅ AdCard Mock (다크 톤, "광고" 칩, AdSlot placeholder)
-- ✅ App.tsx 통합 (이전/다음 버튼으로 카드 넘기기 임시 구현)
+- ✅ **SwipeDeck** (framer-motion `<motion.div drag="y">` + AnimatePresence + 임계값 100px / 500velocity)
+- ✅ **useLastIndex** 훅 (localStorage 디바운스 500ms + beforeunload/visibilitychange flush)
+- ✅ App.tsx 통합 (스와이프 네비게이션, 인덱스 자동 복원)
+- ✅ Vercel 배포 (https://curibox.vercel.app)
 
 ## 미완료
-- ❌ **SwipeDeck** (framer-motion 기반 세로 스와이프) — 이전/다음 버튼 대체
-- ❌ **useLastIndex** 훅 (localStorage 디바운스 저장 + beforeunload 즉시 저장)
 - ❌ 즐겨찾기 / 카테고리 필터 / 설정 페이지
 - ❌ 온보딩 튜토리얼
 - ❌ AdSense 실 광고 SDK 연동 (1차는 Mock만)
-- ❌ Vercel 배포
 - ❌ TWA Android 패키징
 
 ## 빌드 & 실행
@@ -132,8 +136,9 @@ npx vercel --prod --yes   # ChonMap과 동일
 | 2 | trivia 420개 (7카테고리 × 60) 데이터 작성 | ✅ |
 | 3 | 타입 / 테마 / 로더 + Vitest 14건 | ✅ |
 | 4 | TriviaCard / AdCard 컴포넌트 + App 통합 (버튼 네비) | ✅ |
-| 5 | SwipeDeck (framer-motion) + useLastIndex 훅 | ⏳ |
-| 6 | 즐겨찾기 / 카테고리 필터 / 설정 페이지 | ⏸️ |
-| 7 | 온보딩 튜토리얼 | ⏸️ |
-| 8 | Vercel 배포 + AdSense 연동 | ⏸️ |
-| 9 | TWA Android 패키징 | ⏸️ |
+| 5 | SwipeDeck (framer-motion) + useLastIndex 훅 | ✅ |
+| 6 | Vercel 배포 (https://curibox.vercel.app) | ✅ |
+| 7 | 즐겨찾기 / 카테고리 필터 / 설정 페이지 | ⏸️ |
+| 8 | 온보딩 튜토리얼 | ⏸️ |
+| 9 | AdSense 실 광고 SDK 연동 | ⏸️ |
+| 10 | TWA Android 패키징 | ⏸️ |

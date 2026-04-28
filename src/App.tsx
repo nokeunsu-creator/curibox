@@ -1,14 +1,12 @@
-import { useState } from 'react';
-import TriviaCard from './components/cards/TriviaCard';
-import AdCard from './components/cards/AdCard';
+import SwipeDeck from './components/deck/SwipeDeck';
 import { loadAllTrivia, buildDeck } from './data/triviaLoader';
-import { isAdItem } from './models/types';
+import { useLastIndex } from './hooks/useLastIndex';
 
 const DECK = buildDeck(loadAllTrivia(), 10);
+const MAX_INDEX = DECK.length - 1;
 
 export default function App() {
-  const [index, setIndex] = useState(0);
-  const item = DECK[index];
+  const [index, setIndex] = useLastIndex(MAX_INDEX);
 
   return (
     <div className="flex h-full w-full flex-col bg-neutral-50">
@@ -17,34 +15,21 @@ export default function App() {
           <span className="text-xl">📦</span>
           <h1 className="text-base font-bold text-neutral-800">호기심상자</h1>
         </div>
-        <span className="text-xs text-neutral-400">미리보기 모드</span>
+        <span className="text-xs text-neutral-400">
+          {index + 1} / {DECK.length}
+        </span>
       </header>
 
-      <main className="flex flex-1 items-center justify-center px-5 pb-5">
-        <div className="aspect-[3/4] w-full max-w-md">
-          {isAdItem(item) ? (
-            <AdCard item={item} />
-          ) : (
-            <TriviaCard item={item} position={index + 1} total={DECK.length} />
-          )}
+      <main className="flex flex-1 items-center justify-center px-5 pb-3">
+        <div className="aspect-[3/4] h-full w-full max-w-md">
+          <SwipeDeck deck={DECK} index={index} onChangeIndex={setIndex} />
         </div>
       </main>
 
-      <footer className="flex items-center justify-between gap-3 px-5 pb-6">
-        <button
-          onClick={() => setIndex((i) => Math.max(0, i - 1))}
-          disabled={index === 0}
-          className="flex-1 rounded-2xl bg-white py-3 text-sm font-bold text-neutral-700 shadow-sm disabled:opacity-40"
-        >
-          ← 이전
-        </button>
-        <button
-          onClick={() => setIndex((i) => Math.min(DECK.length - 1, i + 1))}
-          disabled={index === DECK.length - 1}
-          className="flex-1 rounded-2xl bg-violet-600 py-3 text-sm font-bold text-white shadow-sm disabled:opacity-40"
-        >
-          다음 →
-        </button>
+      <footer className="flex justify-center pb-4">
+        <p className="text-xs text-neutral-400">
+          위/아래로 스와이프 — 카드 넘기기
+        </p>
       </footer>
     </div>
   );
