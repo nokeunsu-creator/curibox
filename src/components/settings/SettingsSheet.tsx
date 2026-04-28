@@ -12,6 +12,7 @@ interface Props {
   favoritesCount: number;
   onClearFavorites: () => void;
   onResetProgress: () => void;
+  onReplayOnboarding: () => void;
 }
 
 export default function SettingsSheet({
@@ -23,6 +24,7 @@ export default function SettingsSheet({
   favoritesCount,
   onClearFavorites,
   onResetProgress,
+  onReplayOnboarding,
 }: Props) {
   const handleClearFavorites = () => {
     if (favoritesCount === 0) return;
@@ -150,6 +152,14 @@ export default function SettingsSheet({
                 <span className="text-xs text-rose-400">
                   {favoritesCount}개
                 </span>
+              </button>
+              <button
+                type="button"
+                onClick={onReplayOnboarding}
+                className="flex w-full items-center justify-between rounded-2xl bg-violet-50 px-4 py-3 text-sm font-medium text-violet-700 hover:bg-violet-100"
+              >
+                <span>튜토리얼 다시 보기</span>
+                <span className="text-xs text-violet-400">4슬라이드</span>
               </button>
             </section>
 

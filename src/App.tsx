@@ -2,11 +2,13 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import SwipeDeck from './components/deck/SwipeDeck';
 import SettingsSheet from './components/settings/SettingsSheet';
 import EmptyState from './components/common/EmptyState';
+import OnboardingTutorial from './components/onboarding/OnboardingTutorial';
 import { loadAllTrivia, shuffleDeterministic } from './data/triviaLoader';
 import { useLastIndex } from './hooks/useLastIndex';
 import { useFavorites } from './hooks/useFavorites';
 import { useCategoryFilter } from './hooks/useCategoryFilter';
 import { useViewMode } from './hooks/useViewMode';
+import { useOnboardingSeen } from './hooks/useOnboardingSeen';
 import type { DeckItem } from './models/types';
 
 const SHUFFLE_SEED = 20260428;
@@ -18,6 +20,9 @@ export default function App() {
   const filter = useCategoryFilter();
   const [viewMode, setViewMode] = useViewMode();
   const [showSettings, setShowSettings] = useState(false);
+  const onboarding = useOnboardingSeen();
+  const [forceShowOnboarding, setForceShowOnboarding] = useState(false);
+  const showOnboarding = !onboarding.seen || forceShowOnboarding;
 
   const deck = useMemo<DeckItem[]>(() => {
     if (viewMode === 'favorites') {
@@ -147,7 +152,20 @@ export default function App() {
         favoritesCount={count}
         onClearFavorites={clearFavorites}
         onResetProgress={handleResetProgress}
+        onReplayOnboarding={() => {
+          setShowSettings(false);
+          setForceShowOnboarding(true);
+        }}
       />
+
+      {showOnboarding && (
+        <OnboardingTutorial
+          onClose={() => {
+            onboarding.markSeen();
+            setForceShowOnboarding(false);
+          }}
+        />
+      )}
     </div>
   );
 }

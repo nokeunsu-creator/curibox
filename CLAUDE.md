@@ -73,14 +73,17 @@ curibox/
 │   │   ├── deck/
 │   │   │   └── SwipeDeck.tsx      # framer-motion 세로 스와이프 + AnimatePresence
 │   │   ├── settings/
-│   │   │   └── SettingsSheet.tsx  # 바텀시트 (카테고리 칩 + 진행도/즐겨찾기 초기화)
+│   │   │   └── SettingsSheet.tsx  # 바텀시트 (카테고리 칩 + 진행도/즐겨찾기 초기화 + 튜토리얼 다시 보기)
+│   │   ├── onboarding/
+│   │   │   └── OnboardingTutorial.tsx # 4슬라이드 전체화면 (좌우 스와이프 + 인디케이터 + 건너뛰기/시작하기)
 │   │   └── common/
 │   │       └── EmptyState.tsx     # 빈 덱 상태 (이모지 + 제목 + 설명 + 액션 버튼)
 │   ├── hooks/
 │   │   ├── useLastIndex.ts        # localStorage 디바운스(500ms) 저장 + beforeunload/visibilitychange 즉시 flush
 │   │   ├── useFavorites.ts        # 즐겨찾기 ID Set 관리 (toggle/isFavorite/clear/count) + 디바운스 저장
 │   │   ├── useCategoryFilter.ts   # 활성 카테고리 Set + toggle/enableAll/disableAll + 디바운스 저장
-│   │   └── useViewMode.ts         # 'all' | 'favorites' 보기 모드 + 즉시 저장
+│   │   ├── useViewMode.ts         # 'all' | 'favorites' 보기 모드 + 즉시 저장
+│   │   └── useOnboardingSeen.ts   # 첫 방문 플래그 (seen/markSeen/reset)
 │   ├── App.tsx                    # 헤더 + SwipeDeck + 인덱스 카운터
 │   ├── main.tsx                   # ErrorBoundary + StrictMode
 │   ├── index.css                  # Tailwind import
@@ -111,6 +114,7 @@ curibox/
 - ✅ **즐겨찾기 보기 모드** (useViewMode 'all' | 'favorites' — 헤더 ❤️ 배지 탭으로 전환)
 - ✅ **설정 시트** (바텀시트, 카테고리 칩, 진행도/즐겨찾기 초기화)
 - ✅ **빈 상태 처리** (즐겨찾기 모드에 0개 / 카테고리 미선택)
+- ✅ **온보딩 튜토리얼** (4슬라이드 — 환영/스와이프/즐겨찾기/카테고리 — 첫 방문 시 자동 표시, 설정에서 다시 보기 가능)
 - ⚠️ **광고 일시 비활성화**: App.tsx에서 `buildDeck` 호출 제거, trivia 배열을 `DeckItem[]`로 직접 사용. AdCard/buildDeck/isAdItem 코드는 보존됨 (재활성 시 buildDeck 한 줄 부활하면 됨)
 
 ## 미완료
@@ -155,6 +159,6 @@ npx vercel --prod --yes   # ChonMap과 동일
 | 7a | 즐겨찾기 (하트 버튼 + useFavorites) | ✅ |
 | 7b | 카테고리 필터 + 즐겨찾기 보기 모드 + 설정 시트 | ✅ |
 | 7c | 광고 일시 비활성화 (재활성 시 buildDeck 부활) | ✅ |
-| 8 | 온보딩 튜토리얼 | ⏸️ |
+| 8 | 온보딩 튜토리얼 (4슬라이드 + 다시 보기) | ✅ |
 | 9 | AdSense 실 광고 SDK 연동 | ⏸️ |
 | 10 | TWA Android 패키징 | ⏸️ |
