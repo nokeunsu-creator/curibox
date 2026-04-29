@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import type { PanInfo } from 'framer-motion';
 import type { DeckItem } from '../../models/types';
 import { isAdItem } from '../../models/types';
 import TriviaCard from '../cards/TriviaCard';
-import AdCard from '../cards/AdCard';
+
+const AdCard = lazy(() => import('../cards/AdCard'));
 
 interface Props {
   deck: DeckItem[];
@@ -83,7 +84,9 @@ export default function SwipeDeck({
           className="absolute inset-0 cursor-grab touch-none active:cursor-grabbing"
         >
           {isAdItem(item) ? (
-            <AdCard item={item} />
+            <Suspense fallback={null}>
+              <AdCard item={item} />
+            </Suspense>
           ) : (
             <TriviaCard
               item={item}

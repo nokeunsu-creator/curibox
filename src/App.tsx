@@ -1,10 +1,15 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import SwipeDeck from './components/deck/SwipeDeck';
-import SettingsSheet from './components/settings/SettingsSheet';
 import EmptyState from './components/common/EmptyState';
-import OnboardingTutorial from './components/onboarding/OnboardingTutorial';
-import SearchSheet from './components/search/SearchSheet';
 import { loadAllTrivia, shuffleDeterministic } from './data/triviaLoader';
+
+const SettingsSheet = lazy(
+  () => import('./components/settings/SettingsSheet')
+);
+const SearchSheet = lazy(() => import('./components/search/SearchSheet'));
+const OnboardingTutorial = lazy(
+  () => import('./components/onboarding/OnboardingTutorial')
+);
 import { useLastIndex } from './hooks/useLastIndex';
 import { useFavorites } from './hooks/useFavorites';
 import { useCategoryFilter } from './hooks/useCategoryFilter';
@@ -25,9 +30,18 @@ export default function App() {
   const [viewMode, setViewMode] = useViewMode();
   const [showSettings, setShowSettings] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
+  const [settingsLatched, setSettingsLatched] = useState(false);
+  const [searchLatched, setSearchLatched] = useState(false);
   const onboarding = useOnboardingSeen();
   const [forceShowOnboarding, setForceShowOnboarding] = useState(false);
   const showOnboarding = !onboarding.seen || forceShowOnboarding;
+
+  useEffect(() => {
+    if (showSettings && !settingsLatched) setSettingsLatched(true);
+  }, [showSettings, settingsLatched]);
+  useEffect(() => {
+    if (showSearch && !searchLatched) setSearchLatched(true);
+  }, [showSearch, searchLatched]);
   const { theme, resolvedTheme, setTheme } = useTheme();
 
   const deck = useMemo<DeckItem[]>(() => {
@@ -216,38 +230,48 @@ export default function App() {
         </p>
       </footer>
 
-      <SettingsSheet
-        open={showSettings}
-        onClose={() => setShowSettings(false)}
-        enabledCategories={filter.enabled}
-        onToggleCategory={filter.toggleCategory}
-        onEnableAllCategories={filter.enableAll}
-        favoritesCount={count}
-        onClearFavorites={clearFavorites}
-        onResetProgress={handleResetProgress}
-        onReplayOnboarding={() => {
-          setShowSettings(false);
-          setForceShowOnboarding(true);
-        }}
-        theme={theme}
-        resolvedTheme={resolvedTheme}
-        onSetTheme={setTheme}
-      />
+      {settingsLatched && (
+        <Suspense fallback={null}>
+          <SettingsSheet
+            open={showSettings}
+            onClose={() => setShowSettings(false)}
+            enabledCategories={filter.enabled}
+            onToggleCategory={filter.toggleCategory}
+            onEnableAllCategories={filter.enableAll}
+            favoritesCount={count}
+            onClearFavorites={clearFavorites}
+            onResetProgress={handleResetProgress}
+            onReplayOnboarding={() => {
+              setShowSettings(false);
+              setForceShowOnboarding(true);
+            }}
+            theme={theme}
+            resolvedTheme={resolvedTheme}
+            onSetTheme={setTheme}
+          />
+        </Suspense>
+      )}
 
-      <SearchSheet
-        open={showSearch}
-        onClose={() => setShowSearch(false)}
-        items={SHUFFLED_TRIVIA}
-        onPickItem={handlePickSearchResult}
-      />
+      {searchLatched && (
+        <Suspense fallback={null}>
+          <SearchSheet
+            open={showSearch}
+            onClose={() => setShowSearch(false)}
+            items={SHUFFLED_TRIVIA}
+            onPickItem={handlePickSearchResult}
+          />
+        </Suspense>
+      )}
 
       {showOnboarding && (
-        <OnboardingTutorial
-          onClose={() => {
-            onboarding.markSeen();
-            setForceShowOnboarding(false);
-          }}
-        />
+        <Suspense fallback={null}>
+          <OnboardingTutorial
+            onClose={() => {
+              onboarding.markSeen();
+              setForceShowOnboarding(false);
+            }}
+          />
+        </Suspense>
       )}
     </div>
   );
