@@ -16,6 +16,7 @@ import { useCategoryFilter } from './hooks/useCategoryFilter';
 import { useViewMode } from './hooks/useViewMode';
 import { useOnboardingSeen } from './hooks/useOnboardingSeen';
 import { useTheme } from './hooks/useTheme';
+import { useBackButton } from './hooks/useBackButton';
 import { ALL_CATEGORIES, isAdItem } from './models/types';
 import { getCategoryTheme } from './theme/categoryColors';
 import type { DeckItem } from './models/types';
@@ -75,6 +76,27 @@ export default function App() {
   const isFavoritesMode = viewMode === 'favorites';
   const toggleFavoritesView = () =>
     setViewMode(isFavoritesMode ? 'all' : 'favorites');
+
+  useBackButton(() => {
+    if (showOnboarding) {
+      onboarding.markSeen();
+      setForceShowOnboarding(false);
+      return true;
+    }
+    if (showSearch) {
+      setShowSearch(false);
+      return true;
+    }
+    if (showSettings) {
+      setShowSettings(false);
+      return true;
+    }
+    if (safeIndex > 0) {
+      setIndex(safeIndex - 1);
+      return true;
+    }
+    return false;
+  });
 
   const progressColor = useMemo(() => {
     const item = deck[safeIndex];

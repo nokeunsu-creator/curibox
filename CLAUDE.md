@@ -93,7 +93,8 @@ curibox/
 │   │   ├── useCategoryFilter.ts   # 활성 카테고리 Set + toggle/enableAll/disableAll + 디바운스 저장
 │   │   ├── useViewMode.ts         # 'all' | 'favorites' 보기 모드 + 즉시 저장
 │   │   ├── useOnboardingSeen.ts   # 첫 방문 플래그 (seen/markSeen/reset)
-│   │   └── useTheme.ts            # 'light' | 'dark' | 'system' + system prefers-color-scheme 추적 + theme-color 메타 동기화
+│   │   ├── useTheme.ts            # 'light' | 'dark' | 'system' + system prefers-color-scheme 추적 + theme-color 메타 동기화
+│   │   └── useBackButton.ts       # popstate + history guard 패턴 (handler returns boolean)
 │   ├── App.tsx                    # 헤더 + SwipeDeck + 인덱스 카운터
 │   ├── main.tsx                   # ErrorBoundary + StrictMode
 │   ├── index.css                  # Tailwind import
@@ -135,6 +136,7 @@ curibox/
 - ✅ **훅 단위 테스트 추가** (jsdom + @testing-library/react, useFavorites/useLastIndex/useTheme — 총 34건 통과)
 - ✅ **Lighthouse 모바일** Performance 94 / **Accessibility 100** / Best Practices 100 / SEO 100 (a11y는 81 → 100 개선: viewport user-scalable 제거, 텍스트 명도, aria-label에 visible text 포함, 도트 인디케이터 44×44 hit area)
 - ✅ **번들 코드 스플릿** (Settings/Search/Onboarding/AdCard 모두 React.lazy + Suspense — Settings/Search는 첫 오픈 latch로 AnimatePresence exit 보존). 결과: 메인 462KB / 별도 청크 5개 합 14KB, **TBT 130ms → 50ms (-62%), Performance 88 → 94**
+- ✅ **Android 뒤로가기 인앱 처리** (useBackButton 훅 + popstate guard 패턴) — 우선순위: 온보딩 닫기 > 검색 닫기 > 설정 닫기 > 이전 카드 > 앱 종료. handler가 true 반환 시 guard 재push, false면 popstate 통과 (TWA 종료)
 - ⚠️ **광고 일시 비활성화**: App.tsx에서 `buildDeck` 호출 제거, trivia 배열을 `DeckItem[]`로 직접 사용. AdCard/buildDeck/isAdItem 코드는 보존됨 (재활성 시 buildDeck 한 줄 부활하면 됨)
 
 ## 미완료
@@ -176,6 +178,8 @@ npx vercel --prod --yes   # ChonMap과 동일
 - **PWA 아이콘**: 현재 SVG만 제공. iOS Safari `apple-touch-icon`은 SVG 폴백이 최신 iOS만 지원. 호환성 필요 시 PNG(192/512) 추가 생성 검토 (Sharp 또는 외부 변환)
 - **검색 점프 + 필터 충돌**: 검색 결과 탭 → 필터를 'all'로 푸는데, filterKey 변경 effect가 setIndex(0)으로 덮어씀. `pendingJumpRef` 패턴으로 effect 안에서 점프 의도를 우선 처리. 검색 외에 인덱스 점프 기능 추가 시 같은 패턴 사용 권장
 - **lazy 모달 + AnimatePresence**: SettingsSheet/SearchSheet는 React.lazy로 분할되어 있고 내부에 AnimatePresence가 있음. `{showX && <Lazy/>}` 패턴은 unmount로 exit 애니메이션이 사라짐. 그래서 `settingsLatched`/`searchLatched` 플래그(첫 오픈 시 true로 영구 latch)를 두고 `{settingsLatched && <Suspense><SettingsSheet open={showSettings}/></Suspense>}` 형태로 마운트 유지 + open prop으로 visibility 제어. 비슷한 모달 추가 시 동일 패턴 적용
+- **뒤로가기 핸들러**: useBackButton handler는 매 렌더 클로저가 ref로 감싸짐 (effect 재실행 없이 최신 상태 참조). 새 모달/오버레이 추가 시 App.tsx의 handler에 우선순위 분기 1줄 추가 + return true. 카드 인덱스보다 위에 둘 것 (모달 닫기가 카드 back보다 우선)
+- **테스트 cleanup**: vitest `globals: false`라 @testing-library/react의 자동 cleanup이 활성되지 않음. window 리스너를 등록하는 훅 테스트는 `afterEach(cleanup)`을 명시해야 다음 테스트의 dispatch가 잔류 listener를 호출하지 않음 (useBackButton.test.ts 참고)
 - **localStorage 키**: 모든 키는 `curibox:` 접두사로 통일할 것 (`curibox:lastIndex`, `curibox:favorites`, `curibox:settings` 등)
 - **framer-motion v11**: React 19와 호환 확인됨. AnimatePresence + drag 패턴 사용 시 `mode="popLayout"` 권장 (구현 시 검증)
 
@@ -199,5 +203,6 @@ npx vercel --prod --yes   # ChonMap과 동일
 | 13 | 검색 (전체화면 시트, title/content 매칭) | ✅ |
 | 14 | 진행률 게이지 + 훅 테스트 + Lighthouse 만점 a11y | ✅ |
 | 15 | 번들 코드 스플릿 (Performance 94) | ✅ |
-| 16 | AdSense 실 광고 SDK 연동 | ⏸️ |
-| 17 | TWA Android 패키징 | ⏸️ |
+| 16 | Android 뒤로가기 인앱 네비게이션 | ✅ |
+| 17 | AdSense 실 광고 SDK 연동 | ⏸️ |
+| 18 | TWA Android 패키징 | ⏸️ |
