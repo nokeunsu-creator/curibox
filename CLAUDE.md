@@ -131,6 +131,9 @@ curibox/
 - ✅ **다크 모드** (light/dark/system 3모드, useTheme 훅, system은 prefers-color-scheme 실시간 추적, theme-color 메타 동기화, 카테고리 그라디언트 다크 변형, 모든 컴포넌트 dark: 클래스 적용)
 - ✅ **공유 기능** (TriviaCard 공유 버튼 — Web Share API 우선, 미지원 시 navigator.clipboard 폴백 + ✓ 피드백 1.5s)
 - ✅ **검색** (헤더 🔍 → SearchSheet 전체화면 모달, title/content 키워드 검색, score 정렬, 결과 탭 시 필터 풀고 점프 — pendingJumpRef로 효과 충돌 회피)
+- ✅ **진행률 게이지** (헤더 상단 1px 바, 현재 카드 카테고리 색으로 채워짐, 전환 애니메이션)
+- ✅ **훅 단위 테스트 추가** (jsdom + @testing-library/react, useFavorites/useLastIndex/useTheme — 총 34건 통과)
+- ✅ **Lighthouse 모바일** Performance 88 / **Accessibility 100** / Best Practices 100 / SEO 100 (a11y는 81 → 100 개선: viewport user-scalable 제거, 텍스트 명도, aria-label에 visible text 포함, 도트 인디케이터 44×44 hit area)
 - ⚠️ **광고 일시 비활성화**: App.tsx에서 `buildDeck` 호출 제거, trivia 배열을 `DeckItem[]`로 직접 사용. AdCard/buildDeck/isAdItem 코드는 보존됨 (재활성 시 buildDeck 한 줄 부활하면 됨)
 
 ## 미완료
@@ -143,7 +146,16 @@ npm install       # 첫 설치
 npm run dev       # 개발 서버 (http://localhost:5173/)
 npm run build     # 프로덕션 빌드 (tsc + vite build)
 npm run preview   # 빌드 결과 미리보기
-npm run test      # Vitest (14건)
+npm run test      # Vitest (jsdom 환경, 34건 — 로더 14 + 훅 20)
+```
+
+## Lighthouse 측정
+```bash
+NODE_OPTIONS=--use-system-ca npx lighthouse@12 https://curibox.vercel.app \
+  --output=json --output-path=./lh.json \
+  --form-factor=mobile \
+  --only-categories=performance,accessibility,best-practices,seo \
+  --chrome-flags="--headless=new --no-sandbox" --quiet
 ```
 
 ## 배포
@@ -183,5 +195,6 @@ npx vercel --prod --yes   # ChonMap과 동일
 | 11 | 다크 모드 (light/dark/system) | ✅ |
 | 12 | 공유 기능 (Web Share API + 클립보드 폴백) | ✅ |
 | 13 | 검색 (전체화면 시트, title/content 매칭) | ✅ |
-| 14 | AdSense 실 광고 SDK 연동 | ⏸️ |
-| 15 | TWA Android 패키징 | ⏸️ |
+| 14 | 진행률 게이지 + 훅 테스트 + Lighthouse 만점 a11y | ✅ |
+| 15 | AdSense 실 광고 SDK 연동 | ⏸️ |
+| 16 | TWA Android 패키징 | ⏸️ |

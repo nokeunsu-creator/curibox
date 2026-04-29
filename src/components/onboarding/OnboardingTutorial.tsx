@@ -135,7 +135,7 @@ export default function OnboardingTutorial({ onClose }: Props) {
       </div>
 
       <div className="flex flex-col items-center gap-6 px-6 pb-8">
-        <div className="flex gap-2">
+        <div className="flex">
           {SLIDES.map((_, i) => (
             <button
               key={i}
@@ -144,14 +144,21 @@ export default function OnboardingTutorial({ onClose }: Props) {
                 setDirection(i > idx ? 1 : -1);
                 setIdx(i);
               }}
-              aria-label={`${i + 1}번째 슬라이드`}
-              className="h-2 rounded-full transition-all"
-              style={{
-                width: i === idx ? '24px' : '8px',
-                background:
-                  i === idx ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.4)',
-              }}
-            />
+              aria-label={`${i + 1}번째 슬라이드로 이동`}
+              aria-current={i === idx ? 'step' : undefined}
+              className="flex h-11 w-11 items-center justify-center"
+            >
+              <span
+                className="block h-2 rounded-full transition-all"
+                style={{
+                  width: i === idx ? '24px' : '8px',
+                  background:
+                    i === idx
+                      ? 'rgba(255,255,255,0.95)'
+                      : 'rgba(255,255,255,0.4)',
+                }}
+              />
+            </button>
           ))}
         </div>
 

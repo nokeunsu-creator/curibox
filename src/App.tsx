@@ -11,7 +11,8 @@ import { useCategoryFilter } from './hooks/useCategoryFilter';
 import { useViewMode } from './hooks/useViewMode';
 import { useOnboardingSeen } from './hooks/useOnboardingSeen';
 import { useTheme } from './hooks/useTheme';
-import { ALL_CATEGORIES } from './models/types';
+import { ALL_CATEGORIES, isAdItem } from './models/types';
+import { getCategoryTheme } from './theme/categoryColors';
 import type { DeckItem } from './models/types';
 
 const SHUFFLE_SEED = 20260428;
@@ -61,6 +62,15 @@ export default function App() {
   const toggleFavoritesView = () =>
     setViewMode(isFavoritesMode ? 'all' : 'favorites');
 
+  const progressColor = useMemo(() => {
+    const item = deck[safeIndex];
+    if (!item || isAdItem(item)) return '#7C5BD9';
+    return getCategoryTheme(item.category, resolvedTheme === 'dark').chip;
+  }, [deck, safeIndex, resolvedTheme]);
+
+  const progressPercent =
+    deck.length > 0 ? ((safeIndex + 1) / deck.length) * 100 : 0;
+
   const handlePickSearchResult = (itemId: number) => {
     setShowSearch(false);
     const idx = SHUFFLED_TRIVIA.findIndex((item) => item.id === itemId);
@@ -77,7 +87,21 @@ export default function App() {
 
   return (
     <div className="flex h-full w-full flex-col bg-neutral-50 dark:bg-neutral-950">
-      <header className="flex items-center justify-between px-5 pt-5 pb-3">
+      {deck.length > 0 && (
+        <div
+          className="h-1 w-full bg-neutral-200 dark:bg-neutral-800"
+          aria-hidden
+        >
+          <div
+            className="h-full transition-all duration-300 ease-out"
+            style={{
+              width: `${progressPercent}%`,
+              background: progressColor,
+            }}
+          />
+        </div>
+      )}
+      <header className="flex items-center justify-between px-5 pt-4 pb-3">
         <div className="flex items-center gap-2">
           <span className="text-xl">📦</span>
           <h1 className="text-base font-bold text-neutral-800 dark:text-neutral-100">호기심상자</h1>
@@ -92,19 +116,24 @@ export default function App() {
                 ? 'bg-rose-500 text-white'
                 : 'bg-rose-50 text-rose-500 hover:bg-rose-100 dark:bg-rose-950 dark:text-rose-300 dark:hover:bg-rose-900')
             }
-            aria-label={isFavoritesMode ? '전체 보기' : '즐겨찾기 보기'}
+            aria-label={
+              isFavoritesMode
+                ? `전체 보기로 전환 (즐겨찾기 ${count}개)`
+                : `즐겨찾기 보기로 전환 (${count}개)`
+            }
           >
             <svg
               viewBox="0 0 24 24"
               className="h-3.5 w-3.5"
               fill="currentColor"
+              aria-hidden
             >
               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z" />
             </svg>
             {count}
           </button>
           {deck.length > 0 && (
-            <span className="text-xs tabular-nums text-neutral-400 dark:text-neutral-500">
+            <span className="text-xs tabular-nums text-neutral-600 dark:text-neutral-400">
               {safeIndex + 1} / {deck.length}
             </span>
           )}
@@ -182,7 +211,7 @@ export default function App() {
       </main>
 
       <footer className="flex justify-center pb-4">
-        <p className="text-xs text-neutral-400 dark:text-neutral-600">
+        <p className="text-xs text-neutral-600 dark:text-neutral-400">
           위/아래로 스와이프 — 카드 넘기기
         </p>
       </footer>
